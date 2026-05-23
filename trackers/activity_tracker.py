@@ -1,6 +1,6 @@
 import time
 import pywinctl as pwc
-
+from services.api_services import (send_app_usage)
 
 
 def extract_title(title):
@@ -30,14 +30,15 @@ def get_active_window():
                     title=extract_title(current_window)
                     duration=int(time.time()-start_time)
                  
-                    print ({
+                    data={
                        "appName":title,
-                       "duration":duration,
-                       "currentwindow":current_window 
-                        
-                    })
+                       "windowTitle":current_window,
+                       "duration":duration 
+                    }
+                    print(data)
+                    send_app_usage(data)
                 previous_window=current_window
-                time=time.time()                
+                start_time_time=time.time()                
 
             time.sleep(10)
 

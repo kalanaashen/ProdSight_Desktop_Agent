@@ -1,7 +1,10 @@
 import time
 import pywinctl as pwc
 from services.api_services import (send_app_usage)
+from services.auth_services import (login)
 
+EMAIL="kalana@gmail.com"
+PASSWORD="12345678"
 
 def extract_title(title):
     
@@ -19,6 +22,8 @@ start_time=time.time()
 
 
 def get_active_window():
+    token=login(EMAIL,PASSWORD)
+    global start_time
     previous_window=None
     while True:
         try:
@@ -36,9 +41,9 @@ def get_active_window():
                        "duration":duration 
                     }
                     print(data)
-                    send_app_usage(data)
+                    send_app_usage(data,token)
                 previous_window=current_window
-                start_time_time=time.time()                
+                start_time=time.time()                
 
             time.sleep(10)
 

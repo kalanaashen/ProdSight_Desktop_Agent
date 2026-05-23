@@ -2,22 +2,42 @@ import time
 import pywinctl as pwc
 
 
-def get_active_window():
 
+def extract_title(title):
+    
+    if "-" in title:
+        parts=title.split("-")
+    
+    
+        return parts[-1].strip()
+    
+    return title
+
+
+start_time=time.time()
+
+
+
+def get_active_window():
+    previous_window=None
     while True:
         try:
-            previous_window=None
-
 
             current_window=pwc.getActiveWindowTitle()
             if current_window:
 
                 if(previous_window!=current_window):
-
-                    print(f"Current Window is {current_window}")
-
+                    title=extract_title(current_window)
+                    duration=int(time.time()-start_time)
+                 
+                    print ({
+                       "appName":title,
+                       "duration":duration,
+                       "currentwindow":current_window 
+                        
+                    })
                 previous_window=current_window
-
+                time=time.time()                
 
             time.sleep(10)
 

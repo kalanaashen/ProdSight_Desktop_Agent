@@ -1,10 +1,10 @@
 import time
 import pywinctl as pwc
 from services.api_services import (send_app_usage)
-from services.auth_services import (login)
 
-EMAIL="kalana@gmail.com"
-PASSWORD="12345678"
+from services.api_services import (send_active_data)
+from trackers.idle_tracker import (get_input_data)
+
 
 def extract_title(title):
     
@@ -21,8 +21,8 @@ start_time=time.time()
 
 
 
-def get_active_window():
-    token=login(EMAIL,PASSWORD)
+def get_active_window(token):
+
     global start_time
     previous_window=None
     while True:
@@ -40,8 +40,11 @@ def get_active_window():
                        "windowTitle":current_window,
                        "duration":duration 
                     }
-                    print(data)
+                    active_data=get_input_data()
+                    active_data["activeWindow"]=title
+                    print(active_data)
                     send_app_usage(data,token)
+                    send_active_data(active_data,token)
                 previous_window=current_window
                 start_time=time.time()                
 
@@ -51,4 +54,3 @@ def get_active_window():
             print (f"error occured!{e}")
 
 
-get_active_window()

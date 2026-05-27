@@ -1,56 +1,63 @@
 import time
-import pywinctl as pwc
-from services.api_services import (send_app_usage)
 
-from services.api_services import (send_active_data)
-from trackers.idle_tracker import (get_input_data)
+import pywinctl as pwc
+
+from services.api_services import (
+    send_active_data,
+    send_app_usage,
+)
+from trackers.idle_tracker import get_input_data
 
 
 def extract_title(title):
-    
+    if not title:
+        return "Unknown"
+
     if "-" in title:
-        parts=title.split("-")
-    
-    
+        parts = title.split("-")
         return parts[-1].strip()
-    
+
     return title
 
 
-start_time=time.time()
-
-
-
 def get_active_window(token):
+    app_start_time = time.time()
+    last_activity_time = time.time()
+    previous_window = None
 
-    global start_time
-    previous_window=None
     while True:
         try:
+            current_window = pwc.getActiveWindowTitle()
+            current_time = time.time()
 
-            current_window=pwc.getActiveWindowTitle()
-            if current_window:
+            if previous_window is None:
+                previous_window = current_window
+                app_start_time = current_time
 
-                if(previous_window!=current_window):
-                    title=extract_title(current_window)
-                    duration=int(time.time()-start_time)
-                 
-                    data={
-                       "appName":title,
-                       "windowTitle":current_window,
-                       "duration":duration 
-                    }
-                    active_data=get_input_data()
-                    active_data["activeWindow"]=title
-                    print(active_data)
-                    send_app_usage(data,token)
-                    send_active_data(active_data,token)
-                previous_window=current_window
-                start_time=time.time()                
+            elif previous_window != current_window:
+                title = extract_title(previous_window)
+                duration = int(current_time - app_start_time)
 
-            time.sleep(10)
+                data = {
+                    "appName": title,
+                    "windowTitle": previous_window,
+                    "duration": duration,
+                }
+
+                send_app_usage(data, token)
+                previous_window = current_window
+                app_start_time = current_time
+
+            if current_time - last_activity_time > 60:
+                active_data = get_input_data()
+                active_data["activeWindow"] = extract_title(current_window)
+
+                send_active_data(active_data, token)
+                print(active_data)
+
+                last_activity_time = current_time
+
+            time.sleep(2)
 
         except Exception as e:
-            print (f"error occured!{e}")
-
-
+            print(f"error occured! {e}")

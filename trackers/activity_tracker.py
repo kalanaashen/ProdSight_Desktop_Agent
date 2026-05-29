@@ -51,6 +51,7 @@ def get_active_window(token):
             if current_time - last_activity_time > 60:
                 active_data = get_input_data()
                 active_data["activeWindow"] = extract_title(current_window)
+                active_data["duration"]=duration
 
                 send_active_data(active_data, token)
                 print(active_data)

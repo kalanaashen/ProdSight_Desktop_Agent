@@ -1,5 +1,5 @@
 import time
-
+from datetime import datetime
 import pywinctl as pwc
 
 from services.api_services import (
@@ -42,6 +42,7 @@ def get_active_window(token):
                     "appName": title,
                     "windowTitle": previous_window,
                     "duration": duration,
+                    "date":datetime.now().isoformat()
                 }
 
                 send_app_usage(data, token)

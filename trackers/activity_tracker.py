@@ -2,9 +2,7 @@ import time
 from datetime import datetime
 import pywinctl as pwc
 from data.apptracker import create_log_entry
-from services.api_services import (
-    send_active_data,
-)
+from data.activitytracker import create_active_log_entry
 from trackers.idle_tracker import get_input_data
 
 
@@ -51,11 +49,12 @@ def get_active_window(token):
             if current_time - last_activity_time > 60:
                 active_data = get_input_data()
                 active_data["activeWindow"] = extract_title(current_window)
-                active_data["duration"] = int(current_time - app_start_time)
+                active_data["duration"] = int(current_time - last_activity_time)
+                active_data["date"] = datetime.now().isoformat()
 
-                send_active_data(active_data, token)
+                
                 print(active_data)
-
+                create_active_log_entry(active_data, token)
                 last_activity_time = current_time
 
             time.sleep(2)
